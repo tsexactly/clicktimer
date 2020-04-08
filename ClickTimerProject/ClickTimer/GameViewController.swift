@@ -15,20 +15,20 @@ class GameViewController: UIViewController {
     
     @IBOutlet weak var fixedlabel: UILabel!
     
+    @IBOutlet weak var scorelabel: UILabel!
+    
     @IBOutlet weak var colorview: UIView!
     
     @IBOutlet weak var retrybutton: UIButton!
     
-    @IBAction func retrybutton(_ sender: UIButton) {
-        self.viewDidLoad()
-    }
+//    @IBAction func retrybutton(_ sender: UIButton) {
+//        dismiss(animated: false, completion: nil)
+//    }
     
     @IBOutlet weak var cheatlabel: UILabel!
-    
-    @IBAction func mainmenu(_ sender: UIButton) {
-        dismiss(animated: false, completion: nil)
-    }
 
+    var oldscore: Double = 1.0
+    
     var reactiontimer = Timer()
     var reactiontime = 0.000
     var colorchanged = false
@@ -37,17 +37,18 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
     
         colorview.backgroundColor = .systemRed
-        fixedlabel.isHidden = true
-        cheatlabel.isHidden = true
-        retrybutton.isHidden = true
-        
-        
-        
+
         super.viewDidLoad()
         
         let randomTime = (arc4random() % 10) + 1
         
         reactiontimer = Timer.scheduledTimer(timeInterval: TimeInterval(randomTime), target: self, selector: #selector(checkviewtapped), userInfo: nil, repeats: false)
+        
+        colorview.isUserInteractionEnabled = true
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewtapped))
+        
+        colorview.addGestureRecognizer(tapRecognizer)
         
     }
     
@@ -61,12 +62,7 @@ class GameViewController: UIViewController {
             colorchanged = true
             
             reactiontimer = Timer.scheduledTimer(timeInterval: 0.001, target: self , selector: #selector(scorer), userInfo: nil , repeats: true)
-            
-            colorview.isUserInteractionEnabled = true
-            
-            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewtapped))
-            
-            colorview.addGestureRecognizer(tapRecognizer)
+
            
         }
  
@@ -77,27 +73,46 @@ class GameViewController: UIViewController {
     
     @objc func viewtapped(sender: UIView) {
         
-        if !colorchanged {
+        if colorchanged {
                    
                    if reactiontimer.isValid {
                        reactiontimer.invalidate()
                    }
-             
             
-            cheatlabel.text = String(format: "Reaktionszeit: %.3f", reactiontime)
-
-            
-        } else {
-            
-            cheatlabel.isHidden = false
-                  cheated = true
-                  
-                  retrybutton.isHidden = false
-                  
-            
+            fixedlabel.isHidden = false
+            scorelabel.text = String(format: "Reaktionszeit: %.3fs", reactiontime)
+            scorelabel.isHidden = false
         }
-    }
+            
+        else {
+            
+            cheated = true
+            cheatlabel.isHidden = false
+            reactiontime = 1.000
+        }
+            retrybutton.isHidden = false
+        }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        
+      if segue.identifier == "backtomenu" {
+        
+        if let highscoreview = segue.destination as? StartViewController {
+        
+            print(oldscore)
+            if reactiontime < oldscore {
+                highscoreview.highscore = reactiontime
+            
+            } else {
+                highscoreview.highscore = oldscore }
+        
+        }
+            
+      }
+            
+    }
+        
 
 }
 
