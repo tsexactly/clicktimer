@@ -17,29 +17,27 @@ class StartViewController: UIViewController {
     
     @IBOutlet weak var startbutton: UIButton!
     
-    var highscore: Double = 1.0
+    public var highscore: Double = 1.0
     
     override func viewDidLoad() {
-        
-        highscorelabel.text = String(format: "%.3fs", highscore)
-
+    
         super.viewDidLoad()
-
+        startbutton.layer.cornerRadius = 5.0
+        highscore = UserDefaults.standard.double(forKey: "highscore")
+        highscorelabel.text = String(format: "%.3fs", highscore)
+        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "gotogame" {
             
             if let gameview = segue.destination as? GameViewController {
-            
+                
                 gameview.oldscore = highscore
                 
-                } else { return }
-
+            } else { return }
+            
         }
     }
-    
-    
-    
-    
+
 }
